@@ -1,16 +1,18 @@
 import asyncio
 from playwright.async_api import async_playwright
-import time
-import random
 import os
+import random
 
+# ===== CONFIGURATION =====
 PROMO_URL = "https://seller.indotrading.com/default/listproduct"
 LOGIN_EMAIL = os.getenv("LOGIN_EMAIL", "cahayasaktipratama@yahoo.co.id")
 LOGIN_PASS = os.getenv("LOGIN_PASS", "cahaya123")
-SESSION_DIR = ".auth"
-WAIT_MINUTES = 64
+SESSION_DIR = "storage"  # folder yang dipertahankan antar-run di GitHub Actions
+# ==========================
+
 
 async def ensure_login(page):
+    """Pastikan login ke Indotrading Seller"""
     await page.goto(PROMO_URL)
     if "login" not in page.url.lower():
         print("✅ Sudah login.")
@@ -22,10 +24,14 @@ async def ensure_login(page):
     await iframe.locator("button:has-text('Selanjutnya')").click()
     await iframe.locator("input[type='password']").fill(LOGIN_PASS)
     await iframe.locator("button:has-text('LOGIN')").click()
-    await page.wait_for_timeout(5000)
+
+    # Tunggu sampai halaman utama muncul
+    await page.wait_for_timeout(6000)
     print("✅ Login berhasil.")
 
+
 async def promote(page):
+    """Promosikan produk hingga 3 item terakhir"""
     await page.goto(PROMO_URL)
     print("🌐 Membuka halaman promo...")
 
@@ -33,7 +39,7 @@ async def promote(page):
         await page.locator("i.fa-angle-double-right").click(timeout=5000)
         print("⏩ Klik ke halaman terakhir.")
         await page.wait_for_timeout(2000)
-    except:
+    except Exception:
         print("⚠️ Tidak ada tombol ke halaman terakhir.")
 
     promoted = 0
@@ -56,34 +62,35 @@ async def promote(page):
         try:
             await page.locator("button:has-text('OK')").click(timeout=3000)
             print("✅ Popup OK diklik.")
-        except:
+        except Exception:
             print("⚠️ Tidak muncul popup OK.")
 
         promoted += 1
-        await page.wait_for_timeout(2000)
+        await page.wait_for_timeout(random.randint(1500, 2500))
 
     print(f"📦 Total produk dipromosikan: {promoted}")
 
-async def main():
-    while True:
-        print("\n=== Mulai sesi promosi baru ===")
-        async with async_playwright() as p:
-            browser = await p.chromium.launch_persistent_context(
-                SESSION_DIR,
-                headless=True,
-                args=["--no-sandbox"]
-            )
-            page = await browser.new_page()
 
+async def main():
+    print("=== 🚀 Mulai sesi promosi otomatis ===")
+    async with async_playwright() as p:
+        browser = await p.chromium.launch_persistent_context(
+            SESSION_DIR,
+            headless=True,
+            args=["--no-sandbox"]
+        )
+        page = await browser.new_page()
+
+        try:
             await ensure_login(page)
             await promote(page)
+        except Exception as e:
+            print("❌ Terjadi error:", e)
+        finally:
             await browser.close()
 
-        print(f"💤 Tunggu {WAIT_MINUTES} menit sebelum sesi berikutnya...\n")
-        for i in range(WAIT_MINUTES * 60, 0, -1):
-            print(f"\r⏳ Menunggu: {i//60:02d}:{i%60:02d}", end="")
-            time.sleep(1)
-        print()
+    print("✅ Sesi selesai. Tunggu 65 menit lagi via GitHub Actions scheduler.")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

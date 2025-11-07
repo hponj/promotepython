@@ -1,0 +1,43 @@
+name: Playwright Auto Bot (Every 65 Minutes)
+
+on:
+  schedule:
+    - cron: "*/65 * * * *"   # Jalan tiap 65 menit
+  workflow_dispatch:
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install chromium
+
+      - name: Restore session state
+        uses: actions/download-artifact@v4
+        with:
+          name: session
+          path: storage/
+        continue-on-error: true
+
+      - name: Run bot
+        env:
+          PLAYWRIGHT_HEADLESS: "1"
+        run: python main.py
+
+      - name: Save session state
+        uses: actions/upload-artifact@v4
+        with:
+          name: session
+          path: storage/
