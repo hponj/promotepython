@@ -28,6 +28,7 @@ async def ensure_login(page, log):
 async def promote(page, log):
     await page.goto(PROMO_URL)
     log.append("🌐 Membuka halaman promo...")
+    await page.wait_for_timeout(5000)  # <--- tambahkan ini (5 detik)
 
     try:
         await page.locator("i.fa-angle-double-right").click(timeout=5000)
