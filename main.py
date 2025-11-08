@@ -73,17 +73,17 @@ async def main():
     log.append(f"\n=== Mulai sesi: {start_time} ===")
 
     async with async_playwright() as p:
-browser = await p.chromium.launch_persistent_context(
-    SESSION_DIR,
-    headless=False,  # ubah ke False dulu untuk test
-    args=[
-        "--no-sandbox",
-        "--disable-blink-features=AutomationControlled",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
-        "--window-size=1280,720",
-    ]
-)
+        browser = await p.chromium.launch_persistent_context(
+            SESSION_DIR,
+            headless=False,  # ubah ke False dulu untuk test
+            args=[
+                "--no-sandbox",
+                "--disable-blink-features=AutomationControlled",
+                "--disable-dev-shm-usage",
+                "--disable-gpu",
+                "--window-size=1280,720",
+            ]
+        )
 
         page = await browser.new_page()
 
