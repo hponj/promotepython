@@ -28,7 +28,10 @@ async def ensure_login(page, log):
 async def promote(page, log):
     await page.goto(PROMO_URL)
     log.append("🌐 Membuka halaman promo...")
-    await page.wait_for_timeout(5000)  # <--- tambahkan ini (5 detik)
+    await page.wait_for_load_state("networkidle")
+    await page.wait_for_timeout(8000)  # biar JS sempat load
+    await page.screenshot(path="debug_page.png", full_page=True)
+
 
     try:
         await page.locator("i.fa-angle-double-right").click(timeout=5000)
