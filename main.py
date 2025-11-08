@@ -10,6 +10,8 @@ WAIT_MINUTES = 64
 
 async def ensure_login(page, log):
     await page.goto(PROMO_URL)
+    print(page.content())
+
     if "login" not in page.url.lower():
         log.append("✅ Sudah login.")
         return
