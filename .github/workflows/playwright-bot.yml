@@ -2,8 +2,8 @@ name: Playwright Bot
 
 on:
   schedule:
-    # Jalankan setiap 64 menit sekali (sekitar 22x per hari)
-    - cron: "*/64 * * * *"
+    # Jalankan setiap 1 jam sekali (stabil dan valid)
+    - cron: "0 * * * *"
   workflow_dispatch:
 
 jobs:
