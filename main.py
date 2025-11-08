@@ -29,8 +29,10 @@ async def promote(page, log):
     await page.goto(PROMO_URL)
     log.append("🌐 Membuka halaman promo...")
     await page.wait_for_load_state("networkidle")
-    await page.wait_for_timeout(8000)  # biar JS sempat load
+    await page.wait_for_timeout(8000)  # beri waktu JS render
     await page.screenshot(path="debug_page.png", full_page=True)
+    print("📸 Screenshot debug_page.png sudah diambil.")
+
 
 
     try:
@@ -78,7 +80,7 @@ async def main():
     async with async_playwright() as p:
         browser = await p.chromium.launch_persistent_context(
             SESSION_DIR,
-            headless=False,  # ubah ke False dulu untuk test
+            headless=True,  # ubah ke False dulu untuk test
             args=[
                 "--no-sandbox",
                 "--disable-blink-features=AutomationControlled",

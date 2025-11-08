@@ -37,3 +37,11 @@ jobs:
         with:
           name: log-promosi
           path: playwright_log.txt
+
+      - name: Upload screenshot debug
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshot-debug
+          path: debug_page.png
+
