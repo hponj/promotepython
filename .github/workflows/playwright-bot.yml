@@ -1,11 +1,10 @@
-name: Indotrading Promoter Bot
+name: Playwright Bot
 
 on:
   schedule:
-    # Jalankan setiap 65 menit (via kombinasi pola cron)
-    - cron: "0 * * * *"   # tiap jam (00:00, 01:00, 02:00, ...)
-    - cron: "5 1-23/2 * * *"  # tiap 2 jam lewat 5 menit (01:05, 03:05, 05:05, dst)
-  workflow_dispatch:        # biar bisa dijalankan manual juga
+    # Jalankan setiap 64 menit sekali (sekitar 22x per hari)
+    - cron: "*/64 * * * *"
+  workflow_dispatch:
 
 jobs:
   run-bot:
@@ -18,15 +17,23 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: "3.11"
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          python -m pip install --upgrade pip
+          pip install playwright
           playwright install chromium
 
-      - name: Run bot
+      - name: Jalankan bot
         env:
           LOGIN_EMAIL: ${{ secrets.LOGIN_EMAIL }}
           LOGIN_PASS: ${{ secrets.LOGIN_PASS }}
         run: python main.py
+
+      - name: Upload log hasil
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: log-promosi
+          path: playwright_log.txt
